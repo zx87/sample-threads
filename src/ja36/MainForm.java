@@ -19,11 +19,11 @@ public class MainForm extends javax.swing.JFrame {
 	private Printer printer;
 	
 	private void createThreads(boolean sync) {
-        threads = new MyThread[MAX_THREADS];
-		printer = new Printer();
-		
-		for(int i = 0; i < MAX_THREADS; i++)
-			threads[i] = new MyThread("Thread " + i, printer, sync);
+            threads = new MyThread[MAX_THREADS];
+            //printer = new Printer();
+
+            for(int i = 0; i < MAX_THREADS; i++)
+                    threads[i] = new MyThread("Thread " + i, printer, sync);
 	}
 	
 	/**
@@ -171,10 +171,10 @@ public class MainForm extends javax.swing.JFrame {
 
 class Queue {
     private String text;
-    private boolean lock = false;
+    private boolean isLocked = false;
     
     public void put(String text) {
-        
+        this.text = text;
     }
     
     public String get() {
@@ -182,19 +182,23 @@ class Queue {
     }
 }
 
-class Printer {
-	public void print10(int n) {
-		String threadName = Thread.currentThread().getName();
-		System.out.print(threadName + ":");
-		
-		for (int i = 1; i <= 10; i++)
-			System.out.print(String.format("%d ", n * 10 + i));
-		System.out.println();
-	}
-	
-	public synchronized void print10Sync(int n) {
-		print10(n);
-	}
+class Printer implements Runnable {
+        
+        private Queue queue;
+        private Thread t;
+        
+        public Printer(Queue q) {
+            this.queue = q;
+            this.t = new Thread(this, "Printer");
+            t.start();
+        }
+        
+        @Override
+        public void run() {
+            String text = queue.get();
+            System.out.println(text);
+        }
+        
 }
 
 class MyThread extends Thread {
@@ -212,11 +216,11 @@ class MyThread extends Thread {
 	
 	@Override
 	public void run() {
-		for (int i = 0; i < 10; i++)
-			if (!sync)
-				p.print10(i);
-			else
-				p.print10Sync(i);
+//		for (int i = 0; i < 10; i++)
+//			if (!sync)
+//				p.print10(i);
+//			else
+//				p.print10Sync(i);
 	}
 
 }
