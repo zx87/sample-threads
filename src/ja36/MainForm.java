@@ -184,6 +184,10 @@ class Printer {
 	}
 }
 
+/**
+ * This is test java doc coment
+ * @author aware
+ */
 class MyThread extends Thread {
 			
 	private boolean sync = false;
