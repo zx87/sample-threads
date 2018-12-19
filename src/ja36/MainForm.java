@@ -169,6 +169,19 @@ public class MainForm extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 }
 
+class Queue {
+    private String text;
+    private boolean lock = false;
+    
+    public void put(String text) {
+        
+    }
+    
+    public String get() {
+        return text;
+    }
+}
+
 class Printer {
 	public void print10(int n) {
 		String threadName = Thread.currentThread().getName();
@@ -184,10 +197,6 @@ class Printer {
 	}
 }
 
-/**
- * This is test java doc coment
- * @author aware
- */
 class MyThread extends Thread {
 			
 	private boolean sync = false;
