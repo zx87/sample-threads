@@ -18,14 +18,6 @@ public class MainForm extends javax.swing.JFrame {
 	private MyThread[] threads;
 	private Printer printer;
 	
-	private void createThreads(boolean sync) {
-            threads = new MyThread[MAX_THREADS];
-            //printer = new Printer();
-
-            for(int i = 0; i < MAX_THREADS; i++)
-                    threads[i] = new MyThread("Thread " + i, printer, sync);
-	}
-	
 	/**
 	 * Creates new form NewJFrame
 	 */
@@ -58,6 +50,7 @@ public class MainForm extends javax.swing.JFrame {
         jbtnCreate = new javax.swing.JButton();
         jbtnStart = new javax.swing.JButton();
         jbtnCreateSyncThreads = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -82,17 +75,27 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
 
+        jButton1.setText("Start queue");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jbtnCreate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jbtnStart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jbtnCreateSyncThreads)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jbtnCreate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jbtnStart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jbtnCreateSyncThreads))
+                    .addComponent(jButton1))
                 .addContainerGap(144, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -104,14 +107,17 @@ public class MainForm extends javax.swing.JFrame {
                     .addComponent(jbtnCreateSyncThreads))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jbtnStart)
-                .addContainerGap(159, Short.MAX_VALUE))
+                .addGap(28, 28, 28)
+                .addComponent(jButton1)
+                .addContainerGap(105, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbtnCreateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnCreateActionPerformed
-		createThreads(false);
+		//createThreads(false);
+		JOptionPane.showMessageDialog(this, "nope...");
     }//GEN-LAST:event_jbtnCreateActionPerformed
 
     private void jbtnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnStartActionPerformed
@@ -123,8 +129,20 @@ public class MainForm extends javax.swing.JFrame {
     }//GEN-LAST:event_jbtnStartActionPerformed
 
     private void jbtnCreateSyncThreadsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtnCreateSyncThreadsActionPerformed
-        createThreads(true);
+        //createThreads(true);
+		JOptionPane.showMessageDialog(this, "nope...");		
     }//GEN-LAST:event_jbtnCreateSyncThreadsActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        Queue queue = new Queue();
+		Printer printer = new Printer(queue);
+		
+		MyThread[] threads = new MyThread[MAX_THREADS];
+		for (int i = 0; i < MAX_THREADS; i++) {
+			threads[i] = new MyThread(String.format("thread%d", i), printer, queue);
+			threads[i].start();
+		}
+    }//GEN-LAST:event_jButton1ActionPerformed
 
 	/**
 	 * @param args the command line arguments
@@ -163,6 +181,7 @@ public class MainForm extends javax.swing.JFrame {
 	}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jbtnCreate;
     private javax.swing.JButton jbtnCreateSyncThreads;
     private javax.swing.JButton jbtnStart;
@@ -173,7 +192,7 @@ class Queue {
     private String text;
     private boolean isLocked = false;
     
-    public void put(String text) {
+    public void put(String text) {		
         this.text = text;
     }
     
@@ -203,24 +222,30 @@ class Printer implements Runnable {
 
 class MyThread extends Thread {
 			
-	private boolean sync = false;
 	private Printer p;
+	private Queue queue;
+	private String threadName;
 	
-	public MyThread(String name, Printer p, boolean sync) {
+	public MyThread(String name, Printer p, Queue q) {
 		super();
 		this.setName(name);
-		this.sync = sync;
+		this.threadName = name;
 		this.p = p;
+		this.queue = q;
 		System.out.println("Created " + name);
 	}
 	
 	@Override
 	public void run() {
-//		for (int i = 0; i < 10; i++)
-//			if (!sync)
-//				p.print10(i);
-//			else
-//				p.print10Sync(i);
+		for (int i = 1; i < 10; i++) {
+			StringBuilder sb = new StringBuilder();
+			
+			sb.append(String.format("%s: ", this.threadName));
+			for (int j = 1; j < 10; j++) 
+				sb.append(String.format("%d ", i * 10 + j));
+			
+			queue.put(sb.toString());
+		}
 	}
 
 }
